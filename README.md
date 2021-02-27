@@ -45,7 +45,7 @@
 - @aip_x
 
 ## Thanks for Supports
-- [Tap here](https://t.me/audioryukimods/2619)
+- https://t.me/audioryukimods/2619
 
 ## Telegram
 - https://t.me/audioryukimods
