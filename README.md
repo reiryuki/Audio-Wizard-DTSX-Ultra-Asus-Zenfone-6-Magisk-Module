@@ -1,4 +1,4 @@
-# Audio Wizard Zenfone 6 Magisk Module
+# Audio Wizard Asus Zenfone 6 Magisk Module
 
 ## Descriptions
 - An equalizer ported from Asus Zenfone 6 (ASUS_I01WD) SDK 29
