@@ -11,7 +11,7 @@
 - PUBG Mobile
 
 ## Compatible with
-- Sound Enhancement Xperia
+- Sound Enhancement Sony Xperia
 - MusicFX AOSP
 - AudioFX LineageOS
 
@@ -46,9 +46,6 @@
 
 ## Thanks for Supports
 - https://t.me/audioryukimods/2619
-
-## Telegram
-- https://t.me/audioryukimods
 
 ## Donate
 - https://www.paypal.me/reiryuki
