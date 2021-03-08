@@ -11,7 +11,7 @@
 - PUBG Mobile
 
 ## Compatible with
-- Sound Enhancement Sony Xperia, MusicFX AOSP, AudioFX LineageOS, any post process type soundfx
+- Sound Enhancement Sony Xperia, MusicFX AOSP, AudioFX LineageOS, and any post process type soundfx
 
 ## Requirements
 - Android 8.0, 8.1, 9, 10, or 11
