@@ -1,20 +1,17 @@
-# Audio Wizard Asus Zenfone 6 Magisk Module
+# Audio Wizard DTSX Ultra Asus Zenfone 6 Magisk Module
 
 ## Descriptions
 - An equalizer ported from Asus Zenfone 6 (ASUS_I01WD)
 - Post process type FX
-- Changing build product and product model, may break your platform apps and features functionality
+- Changing system property ro.build.product, ro.product.model and ro.product.name. It may break your platform apps and features functionality
 
 ## Not Compatible with
 - Mi Music or any player that forcing compress offload playback
-- Dolby, Moto Waves, AudioFX Moto, Viper, and any global type soundfx (different case in different rom/vendor)
+- Global type soundfx (different case in different ROM/vendor/kernel)
 - PUBG Mobile
 
-## Compatible with
-- Sound Enhancement Sony Xperia, MusicFX AOSP, AudioFX LineageOS, and any post process type soundfx
-
 ## Requirements
-- Android 8.0, 8.1, 9, 10, or 11
+- Android 11, 10, 9, or 8
 - Magisk installed
 
 ## Tested on
@@ -30,23 +27,16 @@
 ## Troubleshootings
 - https://t.me/audioryukimods/3107
 
-## Report Guide
+## Bug Report
 - https://t.me/audioryukimods/2618
 
 ## Credits and contributors
-- @Michi_Nemuritor
-- @guitardedhero
-- @JohnFawkes
-- @Zackptg5
-- @UltraM8
-- @lazerl0rd
+- @ZF6_Dev
 - @aquahol
 - @aip_x
 
-## Thanks for Supports
+## Thanks for Donations
 - https://t.me/audioryukimods/2619
-
-## Donate
 - https://www.paypal.me/reiryuki
 
 ## Download
