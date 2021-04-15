@@ -27,7 +27,7 @@
 ## Troubleshootings
 - https://t.me/audioryukimods/3107
 
-## Bug Report
+## Bug Report (not following this, will be closed immediately)
 - https://t.me/audioryukimods/2618
 
 ## Credits and contributors
