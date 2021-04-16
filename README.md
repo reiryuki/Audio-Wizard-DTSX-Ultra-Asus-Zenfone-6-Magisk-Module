@@ -5,6 +5,9 @@
 - Post process type FX
 - Changing system property ro.build.product, ro.product.model and ro.product.name. It may break your platform apps and features functionality
 
+## Screenshots
+- https://t.me/androidryukimods/47
+
 ## Not Compatible with
 - Mi Music or any player that forcing compress offload playback
 - Global type soundfx (different case in different ROM/vendor/kernel)
