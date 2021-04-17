@@ -11,7 +11,7 @@
 ## Not Compatible with
 - Mi Music or any player that forcing compress offload playback
 - Global type soundfx (different case in different ROM/vendor/kernel)
-- PUBG Mobile
+- PUBG Mobile (no support for this)
 
 ## Requirements
 - Android 11, 10, 9, or 8
