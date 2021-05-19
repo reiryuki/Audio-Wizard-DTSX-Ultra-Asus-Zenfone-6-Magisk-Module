@@ -20,9 +20,6 @@
 ## Tested on
 - Android 10 arm64 CrDroid ROM
 
-## Bugs
-- Headphone effect is not applied sometimes
-
 ## Installation Guide
 - Install the module via Magisk Manager or Recovery
 - Install Audio Modification Library module if you using other audio mods
