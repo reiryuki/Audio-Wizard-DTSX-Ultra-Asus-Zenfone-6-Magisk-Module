@@ -28,10 +28,10 @@
 ## Optional
 
 ## Troubleshootings
-- https://t.me/audioryukimods/3107
+- https://t.me/androidryukimodsdiscussions/3107
 
 ## Bug Report
-- https://t.me/audioryukimods/2618 (not following this, will be closed immediately)
+- https://t.me/androidryukimodsdiscussions/2618 (not following this, will be closed immediately)
 
 ## Credits and contributors
 - @ZF6_Dev
@@ -40,7 +40,7 @@
 - DTS Ports Group
 
 ## Thanks for Donations
-- https://t.me/audioryukimods/2619
+- https://t.me/androidryukimodsdiscussions/2619
 - https://www.paypal.me/reiryuki
 
 ## Download
