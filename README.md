@@ -19,13 +19,14 @@
 
 ## Tested on
 - Android 10 arm64 CrDroid ROM
+- Android 11 arm64 DotOS ROM
 
 ## Installation Guide
 - Install the module via Magisk Manager or Recovery
 - Install Audio Modification Library module if you using other audio mods
 - Reboot (reboot twice without reinstalling if you have Magisk sepolicy.rule bug)
 
-## Optional
+## Optionals
 
 ## Troubleshootings
 - https://t.me/androidryukimodsdiscussions/3107
@@ -35,9 +36,9 @@
 
 ## Credits and contributors
 - @ZF6_Dev
-- @aquahol
-- @aip_x
-- DTS Ports Group
+- DTS Ports Team
+- Android Ryuki Mods Discussions Team
+- https://t.me/androidryukimodsdiscussions/25188
 
 ## Thanks for Donations
 - https://t.me/androidryukimodsdiscussions/2619
