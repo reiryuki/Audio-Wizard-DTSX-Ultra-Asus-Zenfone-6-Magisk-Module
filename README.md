@@ -34,11 +34,11 @@
 - https://t.me/androidryukimodsdiscussions/2618 (not following this, issues will be closed immediately)
 
 ## Credits and contributors
-- t.me/ZF6_Dev
-- t.me/viperatmos
+- https://t.me/ZF6_Dev
+- https://t.me/viperatmos
 - DTS Ports Group
-- t.me/androidryukimodsdiscussions
-- t.me/androidappsportdevelopment
+- https://t.me/androidryukimodsdiscussions
+- https://t.me/androidappsportdevelopment
 
 ## Thanks for Donations
 - https://t.me/androidryukimodsdiscussions/2619
