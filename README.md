@@ -31,7 +31,7 @@
 - https://t.me/androidryukimodsdiscussions/3107
 
 ## Bug Report
-- https://t.me/androidryukimodsdiscussions/2618 (not following this, will be closed immediately)
+- https://t.me/androidryukimodsdiscussions/2618 (not following this, issues will be closed immediately)
 
 ## Credits and contributors
 - t.me/ZF6_Dev
