@@ -3,7 +3,7 @@
 ## Descriptions
 - An equalizer ported from Asus Zenfone 6 (ASUS_I01WD)
 - Post process type soundfx
-- Changing system property ro.build.product, ro.product.model, and ro.product.name. It may break your platform apps and features functionality
+- Changing system property ro.build.product & ro.product.model. It may break your platform apps and features functionality
 
 ## Screenshots
 - https://t.me/androidryukimods/47
