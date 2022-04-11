@@ -1,5 +1,12 @@
 ui_print " "
 
+# magisk
+if [ -d /sbin/.magisk ]; then
+  MAGISKTMP=/sbin/.magisk
+else
+  MAGISKTMP=`find /dev -mindepth 2 -maxdepth 2 -type d -name .magisk`
+fi
+
 # info
 MODVER=`grep_prop version $MODPATH/module.prop`
 MODVERCODE=`grep_prop versionCode $MODPATH/module.prop`
@@ -122,13 +129,6 @@ if [ "$PROP" == 1 ]; then
     sed -i "s/<allow-in-power-save package=\"$PKGS\" \/>//g" $FILE
   done
   ui_print " "
-fi
-
-# magisk
-if [ -d /sbin/.magisk ]; then
-  MAGISKTMP=/sbin/.magisk
-else
-  MAGISKTMP=`find /dev -mindepth 2 -maxdepth 2 -type d -name .magisk`
 fi
 
 # function
@@ -394,7 +394,7 @@ fi
 
 # function
 grant_permission() {
-  if [ "$BOOTMODE" == true ]; then
+  if [ "$BOOTMODE" == true ] && ! dumpsys package $PKG | grep -Eq "$NAME: granted=true"; then
     FILE=`find $MODPATH/system -type f -name $APP.apk`
     ui_print "- Granting all runtime permissions for $PKG..."
     RES=`pm install -g -i com.android.vending $FILE`
@@ -411,7 +411,7 @@ grant_permission() {
 # ui app
 if getprop | grep -Eq "dts.zte\]: \[1"; then
   ui_print "- Using DTS Ultra UI from ZTE instead of Audio Wizard UI"
-  APP="AudioWizardView AudioWizard"
+  APP=AudioWizard
   for APPS in $APP; do
     rm -rf `find $MODPATH/system -type d -name $APPS`
     hide_app
@@ -486,12 +486,14 @@ DIR=`find $MODPATH/system/vendor -type d`
 for DIRS in $DIR; do
   chown 0.2000 $DIRS
 done
-magiskpolicy "dontaudit { vendor_file vendor_configs_file } labeledfs filesystem associate"
-magiskpolicy "allow     { vendor_file vendor_configs_file } labeledfs filesystem associate"
-magiskpolicy "dontaudit init { vendor_file vendor_configs_file } dir relabelfrom"
-magiskpolicy "allow     init { vendor_file vendor_configs_file } dir relabelfrom"
-magiskpolicy "dontaudit init { vendor_file vendor_configs_file } file relabelfrom"
-magiskpolicy "allow     init { vendor_file vendor_configs_file } file relabelfrom"
+magiskpolicy --live "type vendor_file"
+magiskpolicy --live "type vendor_configs_file"
+magiskpolicy --live "dontaudit { vendor_file vendor_configs_file } labeledfs filesystem associate"
+magiskpolicy --live "allow     { vendor_file vendor_configs_file } labeledfs filesystem associate"
+magiskpolicy --live "dontaudit init { vendor_file vendor_configs_file } dir relabelfrom"
+magiskpolicy --live "allow     init { vendor_file vendor_configs_file } dir relabelfrom"
+magiskpolicy --live "dontaudit init { vendor_file vendor_configs_file } file relabelfrom"
+magiskpolicy --live "allow     init { vendor_file vendor_configs_file } file relabelfrom"
 chcon -R u:object_r:vendor_file:s0 $MODPATH/system/vendor
 chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/system/vendor/etc
 chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/system/vendor/odm/etc

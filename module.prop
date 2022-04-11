@@ -1,8 +1,10 @@
 id=AudioWizard
 name=Audio Wizard DTSX Ultra Asus Zenfone 6
-version=v5.1
-versionCode=41
+version=v5.2
+versionCode=42
 author=Rei Ryuki the Fixer
-description=An EQ ported from Asus Zenfone 6 (ASUS_I01WD) asus/WW_I01WD/ASUS_I01WD:11/RKQ1.200710.002/18.0610.2011.107-0:user/release-keys for any Android 9 and up. Source credits: @ZF6_Dev. libdtsaudio.so source: https://github.com/TadiT7/nubia_nx619j_dump/tree/76a9813a81f1973fcbff9dd21d53b6e9040a45f8.
+description=An EQ ported from Asus Zenfone 6 for any Android 9 and up. Source credits: @ZF6_Dev.
+#Source: asus/WW_I01WD/ASUS_I01WD:11/RKQ1.200710.002/18.0610.2011.107-0:user/release-keys
+#libdtsaudio.so source: https://github.com/TadiT7/nubia_nx619j_dump/tree/76a9813a81f1973fcbff9dd21d53b6e9040a45f8
 
 
