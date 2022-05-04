@@ -1,13 +1,8 @@
-(
-
-mount /data
 mount -o rw,remount /data
 MODPATH=${0%/*}
 MODID=`echo "$MODPATH" | sed -n -e 's/\/data\/adb\/modules\///p'`
 APP="`ls $MODPATH/system/priv-app` `ls $MODPATH/system/app`"
-PKG="com.asus.maxxaudio.audiowizard
-     com.asus.maxxaudio
-     com.dts.dtsxultra"
+PKG="com.asus.maxxaudio com.dts.dtsxultra"
 for PKGS in $PKG; do
   rm -rf /data/user/*/$PKGS*
 done
@@ -24,7 +19,5 @@ resetprop -p --delete persist.sys.cta.security
 resetprop -p --delete persist.asus.aw.forceToGetDevices
 resetprop -p --delete persist.asus.stop.audio_wizard_service
 resetprop -p --delete persist.asus.aw.ivt
-
-) 2>/dev/null
 
 

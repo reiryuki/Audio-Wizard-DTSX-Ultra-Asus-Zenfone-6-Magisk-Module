@@ -1,5 +1,3 @@
-(
-
 MODPATH=${0%/*}
 API=`getprop ro.build.version.sdk`
 AML=/data/adb/modules/aml
@@ -7,13 +5,6 @@ AML=/data/adb/modules/aml
 # debug
 exec 2>$MODPATH/debug.log
 set -x
-
-# prevent soft reboot
-echo 0 > /proc/sys/kernel/panic
-echo 0 > /proc/sys/kernel/panic_on_oops
-echo 0 > /proc/sys/kernel/panic_on_rcu_stall
-echo 0 > /proc/sys/kernel/panic_on_warn
-echo 0 > /proc/sys/vm/panic_on_oom
 
 # property
 resetprop ro.build.product ZS630KL
@@ -61,6 +52,12 @@ killall audioserver
 # wait
 sleep 20
 
+# aml fix
+DIR=$AML/system/vendor/odm/etc
+if [ -d $DIR ] && [ ! -f $AML/disable ]; then
+  chcon -R u:object_r:vendor_configs_file:s0 $DIR
+fi
+
 # mount
 NAME="*audio*effects*.conf -o -name *audio*effects*.xml -o -name *policy*.conf -o -name *policy*.xml"
 if [ ! -d $AML ] || [ -f $AML/disable ]; then
@@ -68,27 +65,27 @@ if [ ! -d $AML ] || [ -f $AML/disable ]; then
 else
   DIR=$AML/system/vendor
 fi
-FILE=`find $DIR/odm/etc -maxdepth 1 -type f -name $NAME`
-if [ "`realpath /odm/etc`" != /vendor/odm/etc ] && [ "$FILE" ]; then
-  for i in $FILE; do
-    j="$(echo $i | sed "s|$DIR||")"
-    umount $j
-    mount -o bind $i $j
-  done
-  killall audioserver
-fi
-if [ ! -d $AML ] || [ -f $AML/disable ]; then
-  DIR=$MODPATH/system
-else
-  DIR=$AML/system
-fi
 FILE=`find $DIR/etc -maxdepth 1 -type f -name $NAME`
+if [ `realpath /odm/etc` == /odm/etc ] && [ "$FILE" ]; then
+  for i in $FILE; do
+    j="/odm$(echo $i | sed "s|$DIR||")"
+    if [ -f $j ]; then
+      umount $j
+      mount -o bind $i $j
+    fi
+  done
+fi
 if [ -d /my_product/etc ] && [ "$FILE" ]; then
   for i in $FILE; do
-    j="$(echo $i | sed "s|$DIR||")"
-    umount /my_product$j
-    mount -o bind $i /my_product$j
+    j="/my_product$(echo $i | sed "s|$DIR||")"
+    if [ -f $j ]; then
+      umount $j
+      mount -o bind $i $j
+    fi
   done
+fi
+if ( [ `realpath /odm/etc` == /odm/etc ] && [ "$FILE" ] )\
+|| ( [ -d /my_product/etc ] && [ "$FILE" ] ); then
   killall audioserver
 fi
 
@@ -103,14 +100,8 @@ if pm list packages | grep $PKG ; then
   pm grant $PKG android.permission.READ_PHONE_STATE
   pm grant $PKG android.permission.READ_CALL_LOG
   appops set $PKG WRITE_SETTINGS allow
-  if [ "$API" -gt 29 ]; then
+  if [ "$API" -ge 30 ]; then
     appops set $PKG AUTO_REVOKE_PERMISSIONS_IF_UNUSED ignore
-  fi
-  PKG=com.asus.audiowizard
-  PID=`pidof $PKG`
-  if [ $PID ]; then
-    echo -17 > /proc/$PID/oom_adj
-    echo -1000 > /proc/$PID/oom_score_adj
   fi
 fi
 
@@ -118,7 +109,7 @@ fi
 PKG=com.asus.maxxaudio.audiowizard
 if pm list packages | grep $PKG ; then
   pm grant $PKG android.permission.RECORD_AUDIO
-  if [ "$API" -gt 29 ]; then
+  if [ "$API" -ge 30 ]; then
     appops set $PKG AUTO_REVOKE_PERMISSIONS_IF_UNUSED ignore
   fi
 fi
@@ -129,11 +120,9 @@ if pm list packages | grep $PKG ; then
   pm grant $PKG android.permission.READ_EXTERNAL_STORAGE
   pm grant $PKG android.permission.WRITE_EXTERNAL_STORAGE
   pm grant $PKG android.permission.ACCESS_MEDIA_LOCATION
-  if [ "$API" -gt 29 ]; then
+  if [ "$API" -ge 30 ]; then
     appops set $PKG AUTO_REVOKE_PERMISSIONS_IF_UNUSED ignore
   fi
 fi
-
-) 2>/dev/null
 
 
