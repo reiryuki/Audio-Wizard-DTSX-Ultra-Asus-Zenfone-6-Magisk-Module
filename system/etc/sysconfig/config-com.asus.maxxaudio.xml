@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config>
     <hidden-api-whitelisted-app package="com.asus.maxxaudio"/>
-    <allow-in-power-save package="com.asus.maxxaudio"/>
     <allow-implicit-broadcast action="dts.dtssdk.intent.action.AUDIO_ROUTE_CHANGED"/>
 </config>
 
