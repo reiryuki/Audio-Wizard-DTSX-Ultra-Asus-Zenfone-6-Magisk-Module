@@ -109,7 +109,6 @@ fi
 for APPS in $APP; do
   rm -f `find /data/dalvik-cache /data/resource-cache -type f -name *$APPS*.apk`
 done
-rm -f $MODPATH/LICENSE
 rm -rf $MODPATH/unused
 rm -rf /metadata/magisk/$MODID
 rm -rf /mnt/vendor/persist/magisk/$MODID
@@ -117,19 +116,6 @@ rm -rf /persist/magisk/$MODID
 rm -rf /data/unencrypted/magisk/$MODID
 rm -rf /cache/magisk/$MODID
 ui_print " "
-
-# power save
-PROP=`getprop power.save`
-FILE=$MODPATH/system/etc/sysconfig/*
-if [ "$PROP" == 1 ]; then
-  ui_print "- $MODNAME will not be allowed in power save."
-  ui_print "  It may save your battery but decreasing $MODNAME performance."
-  for PKGS in $PKG; do
-    sed -i "s/<allow-in-power-save package=\"$PKGS\"\/>//g" $FILE
-    sed -i "s/<allow-in-power-save package=\"$PKGS\" \/>//g" $FILE
-  done
-  ui_print " "
-fi
 
 # function
 conflict() {
@@ -337,7 +323,7 @@ if getprop | grep -Eq "disable.dirac\]: \[1" || getprop | grep -Eq "disable.miso
   done
 fi
 if getprop | grep -Eq "disable.dirac\]: \[1"; then
-  APP=DiracAudioControlService
+  APP="Dirac DiracAudioControlService"
   for APPS in $APP; do
     hide_app
   done
@@ -436,16 +422,12 @@ grant_permission() {
 # ui app
 if getprop | grep -Eq "dts.zte\]: \[1"; then
   ui_print "- Using DTS Ultra UI from ZTE instead of Audio Wizard UI"
-  APP=AudioWizard
+  APP="AudioWizard AudioWizardView"
   for APPS in $APP; do
     rm -rf `find $MODPATH/system -type d -name $APPS`
     hide_app
   done
   cp -rf $MODPATH/system_zte/* $MODPATH/system
-  APP=DtsUltra
-  PKG=com.dts.dtsxultra
-  NAME=android.permission.WRITE_EXTERNAL_STORAGE
-  grant_permission
   ui_print " "
 else
   APP=DtsUltra
@@ -486,9 +468,8 @@ if echo "$PROP" | grep -Eq n; then
 fi
 
 # audio rotation
-PROP=`getprop audio.rotation`
 FILE=$MODPATH/service.sh
-if [ "$PROP" == 1 ]; then
+if getprop | grep -Eq "audio.rotation\]: \[1"; then
   ui_print "- Activating ro.audio.monitorRotation=true"
   sed -i '1i\
 resetprop ro.audio.monitorRotation true' $FILE
@@ -496,13 +477,20 @@ resetprop ro.audio.monitorRotation true' $FILE
 fi
 
 # raw
-PROP=`getprop disable.raw`
 FILE=$MODPATH/.aml.sh
-if [ "$PROP" == 0 ]; then
+if getprop | grep -Eq "disable.raw\]: \[0"; then
   ui_print "- Not disabling Ultra Low Latency playback (RAW)"
   ui_print " "
 else
   sed -i 's/#u//g' $FILE
+fi
+
+# other
+FILE=$MODPATH/service.sh
+if getprop | grep -Eq "other.etc\]: \[1"; then
+  ui_print "- Activating other etc files bind mount..."
+  sed -i 's/#p//g' $FILE
+  ui_print " "
 fi
 
 # permission

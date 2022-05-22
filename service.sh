@@ -38,7 +38,7 @@ resetprop ro.odm.config.dts_licensepath /vendor/etc/dts/
 #resetprop vendor.dts.audio.disable_undoredo true
 #resetprop ro.config.versatility ID
 #resetprop ro.config.versatility IN
-#resetprop -n persist.asus.aw.ivt 10000
+resetprop -n persist.asus.aw.ivt 50
 resetprop -p --delete persist.asus.aw.forceToGetDevices
 resetprop -p --delete persist.asus.stop.audio_wizard_service
 PROP=`getprop persist.sys.cta.security`
@@ -59,7 +59,8 @@ if [ -d $DIR ] && [ ! -f $AML/disable ]; then
 fi
 
 # mount
-NAME="*audio*effects*.conf -o -name *audio*effects*.xml -o -name *policy*.conf -o -name *policy*.xml"
+NAME="*audio*effects*.conf -o -name *audio*effects*.xml"
+#pNAME="*audio*effects*.conf -o -name *audio*effects*.xml -o -name *policy*.conf -o -name *policy*.xml"
 if [ ! -d $AML ] || [ -f $AML/disable ]; then
   DIR=$MODPATH/system/vendor
 else
@@ -114,12 +115,9 @@ if pm list packages | grep $PKG ; then
   fi
 fi
 
-# grant
+# allow
 PKG=com.dts.dtsxultra
 if pm list packages | grep $PKG ; then
-  pm grant $PKG android.permission.READ_EXTERNAL_STORAGE
-  pm grant $PKG android.permission.WRITE_EXTERNAL_STORAGE
-  pm grant $PKG android.permission.ACCESS_MEDIA_LOCATION
   if [ "$API" -ge 30 ]; then
     appops set $PKG AUTO_REVOKE_PERMISSIONS_IF_UNUSED ignore
   fi
