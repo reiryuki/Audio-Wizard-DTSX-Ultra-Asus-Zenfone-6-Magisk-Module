@@ -2,9 +2,9 @@ mount -o rw,remount /data
 MODPATH=${0%/*}
 MODID=`echo "$MODPATH" | sed -n -e 's/\/data\/adb\/modules\///p'`
 APP="`ls $MODPATH/system/priv-app` `ls $MODPATH/system/app`"
-PKG="com.asus.maxxaudio com.dts.dtsxultra"
+PKG="com.asus.maxxaudio* com.dts.dtsxultra"
 for PKGS in $PKG; do
-  rm -rf /data/user/*/$PKGS*
+  rm -rf /data/user/*/$PKGS
 done
 for APPS in $APP; do
   rm -f `find /data/dalvik-cache /data/resource-cache -type f -name *$APPS*.apk`
