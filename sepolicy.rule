@@ -327,8 +327,8 @@ dontaudit { hal_audio_default mtk_hal_audio audioserver } sysfs_wake_lock file {
 allow     { hal_audio_default mtk_hal_audio audioserver } sysfs_wake_lock file { write open }
 dontaudit { hal_audio_default mtk_hal_audio audioserver } vendor_default_prop file open
 allow     { hal_audio_default mtk_hal_audio audioserver } vendor_default_prop file open
-dontaudit { hal_audio_default mtk_hal_audio audioserver } sysfs_net dir read
-allow     { hal_audio_default mtk_hal_audio audioserver } sysfs_net dir read
+dontaudit { hal_audio_default mtk_hal_audio audioserver } { sysfs_net sysfs } dir read
+allow     { hal_audio_default mtk_hal_audio audioserver } { sysfs_net sysfs } dir read
 dontaudit { hal_audio_default mtk_hal_audio audioserver } { diag_device vendor_diag_device } chr_file { read write open ioctl getattr }
 allow     { hal_audio_default mtk_hal_audio audioserver } { diag_device vendor_diag_device } chr_file { read write open ioctl getattr }
 dontaudit hal_audio_default hal_audio_default capability2 block_suspend
