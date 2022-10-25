@@ -1,11 +1,27 @@
-ui_print " "
+# space
+if [ "$BOOTMODE" == true ]; then
+  ui_print " "
+fi
 
 # magisk
 if [ -d /sbin/.magisk ]; then
   MAGISKTMP=/sbin/.magisk
 else
-  MAGISKTMP=`find /dev -mindepth 2 -maxdepth 2 -type d -name .magisk`
+  MAGISKTMP=`realpath /dev/*/.magisk`
 fi
+
+# path
+if [ "$BOOTMODE" == true ]; then
+  MIRROR=$MAGISKTMP/mirror
+else
+  MIRROR=
+fi
+SYSTEM=`realpath $MIRROR/system`
+PRODUCT=`realpath $MIRROR/product`
+VENDOR=`realpath $MIRROR/vendor`
+SYSTEM_EXT=`realpath $MIRROR/system/system_ext`
+ODM=`realpath /odm`
+MY_PRODUCT=`realpath /my_product`
 
 # optionals
 OPTIONALS=/sdcard/optionals.prop
@@ -32,8 +48,10 @@ else
   ui_print " "
 fi
 
-# sepolicy.rule
+# mount
 if [ "$BOOTMODE" != true ]; then
+  mount -o rw -t auto /dev/block/bootdevice/by-name/cust /vendor
+  mount -o rw -t auto /dev/block/bootdevice/by-name/vendor /vendor
   mount -o rw -t auto /dev/block/bootdevice/by-name/persist /persist
   mount -o rw -t auto /dev/block/bootdevice/by-name/metadata /metadata
 fi
@@ -42,28 +60,43 @@ fi
 mv -f $MODPATH/aml.sh $MODPATH/.aml.sh
 
 # function
+permissive_2() {
+sed -i '1i\
+SELINUX=`getenforce`\
+if [ "$SELINUX" == Enforcing ]; then\
+  magiskpolicy --live "permissive *"\
+fi\' $MODPATH/post-fs-data.sh
+}
 permissive() {
+SELINUX=`getenforce`
+if [ "$SELINUX" == Enforcing ]; then
+  setenforce 0
   SELINUX=`getenforce`
   if [ "$SELINUX" == Enforcing ]; then
-    setenforce 0
-    SELINUX=`getenforce`
-    if [ "$SELINUX" == Enforcing ]; then
-      abort "! Your device can't be turned to Permissive state."
-    fi
+    ui_print "  Your device can't be turned to Permissive state."
+    ui_print "  Using Magisk Permissive mode instead."
+    permissive_2
+  else
     setenforce 1
-  fi
-  sed -i '1i\
+    sed -i '1i\
 SELINUX=`getenforce`\
 if [ "$SELINUX" == Enforcing ]; then\
   setenforce 0\
 fi\' $MODPATH/post-fs-data.sh
+  fi
+fi
 }
 
 # permissive
 if [ "`grep_prop permissive.mode $OPTIONALS`" == 1 ]; then
-  ui_print "- Using permissive method"
+  ui_print "- Using device Permissive mode."
   rm -f $MODPATH/sepolicy.rule
   permissive
+  ui_print " "
+elif [ "`grep_prop permissive.mode $OPTIONALS`" == 2 ]; then
+  ui_print "- Using Magisk Permissive mode."
+  rm -f $MODPATH/sepolicy.rule
+  permissive_2
   ui_print " "
 fi
 
@@ -117,7 +150,7 @@ conflict() {
 for NAMES in $NAME; do
   DIR=/data/adb/modules_update/$NAMES
   if [ -f $DIR/uninstall.sh ]; then
-    sh $DIR/uninstall.sh
+    . $DIR/uninstall.sh
   fi
   rm -rf $DIR
   DIR=/data/adb/modules/$NAMES
@@ -125,7 +158,7 @@ for NAMES in $NAME; do
   touch $DIR/remove
   FILE=/data/adb/modules/$NAMES/uninstall.sh
   if [ -f $FILE ]; then
-    sh $FILE
+    . $FILE
     rm -f $FILE
   fi
   rm -rf /metadata/magisk/$NAMES
@@ -145,11 +178,11 @@ conflict
 # function
 cleanup() {
 if [ -f $DIR/uninstall.sh ]; then
-  sh $DIR/uninstall.sh
+  . $DIR/uninstall.sh
 fi
 DIR=/data/adb/modules_update/$MODID
 if [ -f $DIR/uninstall.sh ]; then
-  sh $DIR/uninstall.sh
+  . $DIR/uninstall.sh
 fi
 }
 
@@ -203,67 +236,37 @@ if [ -d $DIR ]; then
 fi
 }
 hide_app() {
-if [ "$BOOTMODE" == true ]; then
-  DIR=$MAGISKTMP/mirror/system/app/$APPS
-else
-  DIR=/system/app/$APPS
-fi
+DIR=$SYSTEM/app/$APPS
 MODDIR=$MODPATH/system/app/$APPS
 replace_dir
-if [ "$BOOTMODE" == true ]; then
-  DIR=$MAGISKTMP/mirror/system/priv-app/$APPS
-else
-  DIR=/system/priv-app/$APPS
-fi
+DIR=$SYSTEM/priv-app/$APPS
 MODDIR=$MODPATH/system/priv-app/$APPS
 replace_dir
-if [ "$BOOTMODE" == true ]; then
-  DIR=$MAGISKTMP/mirror/product/app/$APPS
-else
-  DIR=/product/app/$APPS
-fi
+DIR=$PRODUCT/app/$APPS
 MODDIR=$MODPATH/system/product/app/$APPS
 replace_dir
-if [ "$BOOTMODE" == true ]; then
-  DIR=$MAGISKTMP/mirror/product/priv-app/$APPS
-else
-  DIR=/product/priv-app/$APPS
-fi
+DIR=$PRODUCT/priv-app/$APPS
 MODDIR=$MODPATH/system/product/priv-app/$APPS
 replace_dir
-if [ "$BOOTMODE" == true ]; then
-  DIR=$MAGISKTMP/mirror/product/preinstall/$APPS
-else
-  DIR=/product/preinstall/$APPS
-fi
+DIR=$MY_PRODUCT/app/$APPS
+MODDIR=$MODPATH/system/product/app/$APPS
+replace_dir
+DIR=$MY_PRODUCT/priv-app/$APPS
+MODDIR=$MODPATH/system/product/priv-app/$APPS
+replace_dir
+DIR=$PRODUCT/preinstall/$APPS
 MODDIR=$MODPATH/system/product/preinstall/$APPS
 replace_dir
-if [ "$BOOTMODE" == true ]; then
-  DIR=$MAGISKTMP/mirror/system_ext/app/$APPS
-else
-  DIR=/system/system_ext/app/$APPS
-fi
+DIR=$SYSTEM_EXT/app/$APPS
 MODDIR=$MODPATH/system/system_ext/app/$APPS
 replace_dir
-if [ "$BOOTMODE" == true ]; then
-  DIR=$MAGISKTMP/mirror/system_ext/priv-app/$APPS
-else
-  DIR=/system/system_ext/priv-app/$APPS
-fi
+DIR=$SYSTEM_EXT/priv-app/$APPS
 MODDIR=$MODPATH/system/system_ext/priv-app/$APPS
 replace_dir
-if [ "$BOOTMODE" == true ]; then
-  DIR=$MAGISKTMP/mirror/vendor/app/$APPS
-else
-  DIR=/vendor/app/$APPS
-fi
+DIR=$VENDOR/app/$APPS
 MODDIR=$MODPATH/system/vendor/app/$APPS
 replace_dir
-if [ "$BOOTMODE" == true ]; then
-  DIR=$MAGISKTMP/mirror/vendor/euclid/product/app/$APPS
-else
-  DIR=/vendor/euclid/product/app/$APPS
-fi
+DIR=$VENDOR/euclid/product/app/$APPS
 MODDIR=$MODPATH/system/vendor/euclid/product/app/$APPS
 replace_dir
 }
@@ -271,13 +274,8 @@ check_app() {
 if [ "$BOOTMODE" == true ]\
 && [ "`grep_prop hide.parts $OPTIONALS`" == 1 ]; then
   for APPS in $APP; do
-    FILE=`find $MAGISKTMP/mirror/system_root/system\
-               $MAGISKTMP/mirror/system_root/product\
-               $MAGISKTMP/mirror/system_root/system_ext\
-               $MAGISKTMP/mirror/system\
-               $MAGISKTMP/mirror/product\
-               $MAGISKTMP/mirror/system_ext\
-               $MAGISKTMP/mirror/vendor -type f -name $APPS.apk`
+    FILE=`find $SYSTEM $PRODUCT $SYSTEM_EXT $VENDOR\
+               $MY_PRODUCT -type f -name $APPS.apk`
     if [ "$FILE" ]; then
       ui_print "  Checking $APPS.apk"
       ui_print "  Please wait..."
