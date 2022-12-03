@@ -23,7 +23,7 @@
 
 ## Installation Guide & Download Link
 - Install this module https://www.pling.com/p/1531567/ via Magisk Manager or Recovery
-- Install AML Magisk Module https://zackptg5.com/android.php#aml only if using any other audio mod module
+- Install AML Magisk Module https://t.me/androidryukimodsdiscussions/29836 only if using any other audio mod module
 - Reboot
 
 ## Troubleshootings and Optionals
@@ -40,7 +40,8 @@
 - Android 10 CrDroid ROM
 - Android 11 DotOS ROM
 - Android 12 Ancient OS ROM
-- Android 12L Nusantara ROM
+- Android 12.1 Nusantara ROM
+- Android 13 AOSP ROM
 
 ## Credits and contributors
 - https://t.me/ZF6_Dev

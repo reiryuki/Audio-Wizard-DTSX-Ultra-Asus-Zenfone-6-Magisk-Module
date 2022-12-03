@@ -19,9 +19,17 @@ fi
 SYSTEM=`realpath $MIRROR/system`
 PRODUCT=`realpath $MIRROR/product`
 VENDOR=`realpath $MIRROR/vendor`
-SYSTEM_EXT=`realpath $MIRROR/system/system_ext`
-ODM=`realpath /odm`
-MY_PRODUCT=`realpath /my_product`
+SYSTEM_EXT=`realpath $MIRROR/system_ext`
+if [ -d $MIRROR/odm ]; then
+  ODM=`realpath $MIRROR/odm`
+else
+  ODM=`realpath /odm`
+fi
+if [ -d $MIRROR/my_product ]; then
+  MY_PRODUCT=`realpath $MIRROR/my_product`
+else
+  MY_PRODUCT=`realpath /my_product`
+fi
 
 # optionals
 OPTIONALS=/sdcard/optionals.prop
@@ -150,7 +158,7 @@ conflict() {
 for NAMES in $NAME; do
   DIR=/data/adb/modules_update/$NAMES
   if [ -f $DIR/uninstall.sh ]; then
-    . $DIR/uninstall.sh
+    sh $DIR/uninstall.sh
   fi
   rm -rf $DIR
   DIR=/data/adb/modules/$NAMES
@@ -158,7 +166,7 @@ for NAMES in $NAME; do
   touch $DIR/remove
   FILE=/data/adb/modules/$NAMES/uninstall.sh
   if [ -f $FILE ]; then
-    . $FILE
+    sh $FILE
     rm -f $FILE
   fi
   rm -rf /metadata/magisk/$NAMES
@@ -178,11 +186,11 @@ conflict
 # function
 cleanup() {
 if [ -f $DIR/uninstall.sh ]; then
-  . $DIR/uninstall.sh
+  sh $DIR/uninstall.sh
 fi
 DIR=/data/adb/modules_update/$MODID
 if [ -f $DIR/uninstall.sh ]; then
-  . $DIR/uninstall.sh
+  sh $DIR/uninstall.sh
 fi
 }
 
@@ -394,18 +402,21 @@ fi
 
 # function
 grant_permission() {
-  if [ "$BOOTMODE" == true ] && ! dumpsys package $PKG | grep -Eq "$NAME: granted=true"; then
-    FILE=`find $MODPATH/system -type f -name $APP.apk`
-    ui_print "- Granting all runtime permissions for $PKG..."
-    RES=`pm install -g -i com.android.vending $FILE`
-    pm grant $PKG $NAME
-    if ! dumpsys package $PKG | grep -Eq "$NAME: granted=true"; then
-      ui_print "  ! Failed."
-      ui_print "  Maybe insufficient storage."
-    fi
-    RES=`pm uninstall -k $PKG`
-    ui_print " "
+if [ "$BOOTMODE" == true ]\
+&& ! dumpsys package $PKG | grep -Eq "$NAME: granted=true"; then
+  FILE=`find $MODPATH/system -type f -name $APP.apk`
+  ui_print "- Granting all runtime permissions for $PKG..."
+  RES=`pm install -g -i com.android.vending $FILE`
+  pm grant $PKG $NAME
+  if ! dumpsys package $PKG | grep -Eq "$NAME: granted=true"; then
+    ui_print "  ! Failed."
+    ui_print "  Maybe insufficient storage."
+    ui_print "  or maybe there is in-built $PKG exist."
+    ui_print "  Just ignore this."
   fi
+  RES=`pm uninstall -k $PKG`
+  ui_print " "
+fi
 }
 
 # ui app
@@ -421,7 +432,6 @@ if [ "`grep_prop dts.zte $OPTIONALS`" == 1 ]; then
 else
   APP=DtsUltra
   for APPS in $APP; do
-    rm -rf `find $MODPATH/system -type d -name $APPS`
     hide_app
   done
   APP=AudioWizard
@@ -460,6 +470,32 @@ if echo "$PROP" | grep -Eq n; then
   sed -i 's/#n//g' $FILE
   ui_print " "
 fi
+
+# function
+file_check_vendor() {
+for NAMES in $NAME; do
+  if [ "$IS64BIT" == true ]; then
+    FILE=$VENDOR/lib64/$NAMES
+    FILE2=$ODM/lib64/$NAMES
+    if [ -f $FILE ] || [ -f $FILE2 ]; then
+      ui_print "- Detected $NAMES 64"
+      ui_print " "
+      rm -f $MODPATH/system/vendor/lib64/$NAMES
+    fi
+  fi
+  FILE=$VENDOR/lib/$NAMES
+  FILE2=$ODM/lib/$NAMES
+  if [ -f $FILE ] || [ -f $FILE2 ]; then
+    ui_print "- Detected $NAMES"
+    ui_print " "
+    rm -f $MODPATH/system/vendor/lib/$NAMES
+  fi
+done
+}
+
+# check
+NAME="libomx-dts.so libstagefright_soft_dtsdec.so"
+file_check_vendor
 
 # audio rotation
 FILE=$MODPATH/service.sh
