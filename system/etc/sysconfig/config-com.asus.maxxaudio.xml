@@ -3,4 +3,3 @@
     <hidden-api-whitelisted-app package="com.asus.maxxaudio"/>
     <allow-implicit-broadcast action="dts.dtssdk.intent.action.AUDIO_ROUTE_CHANGED"/>
 </config>
-
