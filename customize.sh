@@ -33,6 +33,9 @@ fi
 
 # optionals
 OPTIONALS=/sdcard/optionals.prop
+if [ ! -f $OPTIONALS ]; then
+  touch $OPTIONALS
+fi
 
 # info
 MODVER=`grep_prop version $MODPATH/module.prop`
@@ -62,6 +65,14 @@ if [ "$BOOTMODE" != true ]; then
   mount -o rw -t auto /dev/block/bootdevice/by-name/vendor /vendor
   mount -o rw -t auto /dev/block/bootdevice/by-name/persist /persist
   mount -o rw -t auto /dev/block/bootdevice/by-name/metadata /metadata
+fi
+
+# sepolicy
+FILE=$MODPATH/sepolicy.rule
+DES=$MODPATH/sepolicy.pfsd
+if [ "`grep_prop sepolicy.sh $OPTIONALS`" == 1 ]\
+&& [ -f $FILE ]; then
+  mv -f $FILE $DES
 fi
 
 # .aml.sh
@@ -137,12 +148,10 @@ fi
 
 # cleaning
 ui_print "- Cleaning..."
-PKG="com.asus.maxxaudio.audiowizard
-     com.asus.maxxaudio
-     com.dts.dtsxultra"
+PKG=`cat $MODPATH/package.txt`
 if [ "$BOOTMODE" == true ]; then
   for PKGS in $PKG; do
-    RES=`pm uninstall $PKGS`
+    RES=`pm uninstall $PKGS 2>/dev/null`
   done
 fi
 rm -rf $MODPATH/unused
@@ -293,7 +302,7 @@ if [ "$BOOTMODE" == true ]\
 && ! dumpsys package $PKG | grep -Eq "$NAME: granted=true"; then
   FILE=`find $MODPATH/system -type f -name $APP.apk`
   ui_print "- Granting all runtime permissions for $PKG..."
-  RES=`pm install -g -i com.android.vending $FILE`
+  RES=`pm install -g -i com.android.vending $FILE 2>/dev/null`
   pm grant $PKG $NAME
   if ! dumpsys package $PKG | grep -Eq "$NAME: granted=true"; then
     ui_print "  ! Failed."
@@ -301,7 +310,7 @@ if [ "$BOOTMODE" == true ]\
     ui_print "  or maybe there is in-built $PKG exist."
     ui_print "  Just ignore this."
   fi
-  RES=`pm uninstall -k $PKG`
+  RES=`pm uninstall -k $PKG 2>/dev/null`
   ui_print " "
 fi
 }
@@ -420,7 +429,8 @@ ui_print " "
 
 # vendor_overlay
 DIR=/product/vendor_overlay
-if [ -d $DIR ]; then
+if [ "`grep_prop fix.vendor_overlay $OPTIONALS`" == 1 ]\
+&& [ -d $DIR ]; then
   ui_print "- Fixing $DIR mount..."
   cp -rf $DIR/*/* $MODPATH/system/vendor
   ui_print " "
@@ -430,7 +440,7 @@ fi
 NAME=asus.software.marketapp
 if [ "$BOOTMODE" == true ]\
 && ! pm list features | grep -Eq $NAME; then
-  echo 'rm -rf /data/user/*/com.android.vending/*' >> $MODPATH/cleaner.sh
+  echo 'rm -rf /data/user*/*/com.android.vending/*' >> $MODPATH/cleaner.sh
   ui_print "- Play Store data will be cleared automatically on the next"
   ui_print "  reboot"
   ui_print " "

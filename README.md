@@ -1,8 +1,8 @@
 # Audio Wizard DTSX Ultra Asus Zenfone 6 Magisk Module
 
 ## DISCLAIMER
-- DTS Apps and blobs are owned by DTS™.
-- The MIT license specified here is for the Magisk Module, not for DTS apps and blobs.
+- Asus & DTS Apps and blobs are owned by Asus™ & DTS™.
+- The MIT license specified here is for the Magisk Module, not for Asus & DTS apps and blobs.
 
 ## Descriptions
 - Equalizer soundfx ported from Asus Zenfone 6 (ASUS_I01WD) and integrated as a Magisk Module for all supported and rooted devices with Magisk

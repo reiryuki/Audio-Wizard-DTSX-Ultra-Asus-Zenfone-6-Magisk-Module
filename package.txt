@@ -1,0 +1,3 @@
+com.asus.maxxaudio.audiowizard
+com.asus.maxxaudio
+com.dts.dtsxultra
