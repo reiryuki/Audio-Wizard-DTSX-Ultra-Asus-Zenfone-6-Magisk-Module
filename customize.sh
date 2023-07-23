@@ -1,41 +1,16 @@
 # space
-if [ "$BOOTMODE" == true ]; then
+ui_print " "
+
+# log
+if [ "$BOOTMODE" != true ]; then
+  FILE=/sdcard/$MODID\_recovery.log
+  ui_print "- Log will be saved at $FILE"
+  exec 2>$FILE
   ui_print " "
 fi
 
-# magisk
-if [ -d /sbin/.magisk ]; then
-  MAGISKTMP=/sbin/.magisk
-else
-  MAGISKTMP=`realpath /dev/*/.magisk`
-fi
-
-# path
-if [ "$BOOTMODE" == true ]; then
-  MIRROR=$MAGISKTMP/mirror
-else
-  MIRROR=
-fi
-SYSTEM=`realpath $MIRROR/system`
-PRODUCT=`realpath $MIRROR/product`
-VENDOR=`realpath $MIRROR/vendor`
-SYSTEM_EXT=`realpath $MIRROR/system_ext`
-if [ -d $MIRROR/odm ]; then
-  ODM=`realpath $MIRROR/odm`
-else
-  ODM=`realpath /odm`
-fi
-if [ -d $MIRROR/my_product ]; then
-  MY_PRODUCT=`realpath $MIRROR/my_product`
-else
-  MY_PRODUCT=`realpath /my_product`
-fi
-
-# optionals
-OPTIONALS=/sdcard/optionals.prop
-if [ ! -f $OPTIONALS ]; then
-  touch $OPTIONALS
-fi
+# run
+. $MODPATH/function.sh
 
 # info
 MODVER=`grep_prop version $MODPATH/module.prop`
@@ -43,8 +18,15 @@ MODVERCODE=`grep_prop versionCode $MODPATH/module.prop`
 ui_print " ID=$MODID"
 ui_print " Version=$MODVER"
 ui_print " VersionCode=$MODVERCODE"
-ui_print " MagiskVersion=$MAGISK_VER"
-ui_print " MagiskVersionCode=$MAGISK_VER_CODE"
+if [ "$KSU" == true ]; then
+  ui_print " KSUVersion=$KSU_VER"
+  ui_print " KSUVersionCode=$KSU_VER_CODE"
+  ui_print " KSUKernelVersionCode=$KSU_KERNEL_VER_CODE"
+  sed -i 's|#k||g' $MODPATH/post-fs-data.sh
+else
+  ui_print " MagiskVersion=$MAGISK_VER"
+  ui_print " MagiskVersionCode=$MAGISK_VER_CODE"
+fi
 ui_print " "
 
 # sdk
@@ -59,12 +41,41 @@ else
   ui_print " "
 fi
 
-# mount
-if [ "$BOOTMODE" != true ]; then
-  mount -o rw -t auto /dev/block/bootdevice/by-name/cust /vendor
-  mount -o rw -t auto /dev/block/bootdevice/by-name/vendor /vendor
-  mount -o rw -t auto /dev/block/bootdevice/by-name/persist /persist
-  mount -o rw -t auto /dev/block/bootdevice/by-name/metadata /metadata
+# bit
+if [ "$IS64BIT" == true ]; then
+  ui_print "- 64 bit"
+else
+  ui_print "- 32 bit"
+  rm -rf `find $MODPATH -type d -name *64*`
+fi
+ui_print " "
+
+# recovery
+mount_partitions_in_recovery
+
+# magisk
+magisk_setup
+
+# path
+SYSTEM=`realpath $MIRROR/system`
+PRODUCT=`realpath $MIRROR/product`
+VENDOR=`realpath $MIRROR/vendor`
+SYSTEM_EXT=`realpath $MIRROR/system_ext`
+if [ "$BOOTMODE" == true ]; then
+  if [ ! -d $MIRROR/odm ]; then
+    mount_odm_to_mirror
+  fi
+  if [ ! -d $MIRROR/my_product ]; then
+    mount_my_product_to_mirror
+  fi
+fi
+ODM=`realpath $MIRROR/odm`
+MY_PRODUCT=`realpath $MIRROR/my_product`
+
+# optionals
+OPTIONALS=/sdcard/optionals.prop
+if [ ! -f $OPTIONALS ]; then
+  touch $OPTIONALS
 fi
 
 # sepolicy
@@ -80,29 +91,28 @@ mv -f $MODPATH/aml.sh $MODPATH/.aml.sh
 
 # function
 permissive_2() {
-sed -i '1i\
-SELINUX=`getenforce`\
-if [ "$SELINUX" == Enforcing ]; then\
-  magiskpolicy --live "permissive *"\
-fi\' $MODPATH/post-fs-data.sh
+sed -i 's|#2||g' $MODPATH/post-fs-data.sh
 }
 permissive() {
-SELINUX=`getenforce`
-if [ "$SELINUX" == Enforcing ]; then
-  setenforce 0
-  SELINUX=`getenforce`
-  if [ "$SELINUX" == Enforcing ]; then
+FILE=/sys/fs/selinux/enforce
+SELINUX=`cat $FILE`
+if [ "$SELINUX" == 1 ]; then
+  if ! setenforce 0; then
+    echo 0 > $FILE
+  fi
+  SELINUX=`cat $FILE`
+  if [ "$SELINUX" == 1 ]; then
     ui_print "  Your device can't be turned to Permissive state."
     ui_print "  Using Magisk Permissive mode instead."
     permissive_2
   else
-    setenforce 1
-    sed -i '1i\
-SELINUX=`getenforce`\
-if [ "$SELINUX" == Enforcing ]; then\
-  setenforce 0\
-fi\' $MODPATH/post-fs-data.sh
+    if ! setenforce 1; then
+      echo 1 > $FILE
+    fi
+    sed -i 's|#1||g' $MODPATH/post-fs-data.sh
   fi
+else
+  sed -i 's|#1||g' $MODPATH/post-fs-data.sh
 fi
 }
 
@@ -119,16 +129,8 @@ elif [ "`grep_prop permissive.mode $OPTIONALS`" == 2 ]; then
   ui_print " "
 fi
 
-# bit
-if [ "$IS64BIT" != true ]; then
-  ui_print "- 32 bit"
-  rm -rf `find $MODPATH/system -type d -name *64`
-else
-  ui_print "- 64 bit"
-fi
-ui_print " "
-
 # mod ui
+MOD_UI=false
 if [ "`grep_prop mod.ui $OPTIONALS`" == 1 ]; then
   APP=AudioWizardView
   FILE=/sdcard/$APP.apk
@@ -138,6 +140,7 @@ if [ "`grep_prop mod.ui $OPTIONALS`" == 1 ]; then
     cp -f $FILE $DIR
     chmod 0644 $DIR/$APP.apk
     ui_print "  Applied"
+    MOD_UI=true
   else
     ui_print "  ! There is no $FILE file."
     ui_print "    Please place the apk to your internal storage first"
@@ -148,48 +151,43 @@ fi
 
 # cleaning
 ui_print "- Cleaning..."
-PKG=`cat $MODPATH/package.txt`
+PKGS=`cat $MODPATH/package.txt`
 if [ "$BOOTMODE" == true ]; then
-  for PKGS in $PKG; do
-    RES=`pm uninstall $PKGS 2>/dev/null`
+  for PKG in $PKGS; do
+    RES=`pm uninstall $PKG 2>/dev/null`
   done
 fi
 rm -rf $MODPATH/unused
-rm -rf /metadata/magisk/$MODID
-rm -rf /mnt/vendor/persist/magisk/$MODID
-rm -rf /persist/magisk/$MODID
-rm -rf /data/unencrypted/magisk/$MODID
-rm -rf /cache/magisk/$MODID
+remove_sepolicy_rule
 ui_print " "
 
 # function
 conflict() {
-for NAMES in $NAME; do
-  DIR=/data/adb/modules_update/$NAMES
+for NAME in $NAMES; do
+  DIR=/data/adb/modules_update/$NAME
   if [ -f $DIR/uninstall.sh ]; then
     sh $DIR/uninstall.sh
   fi
   rm -rf $DIR
-  DIR=/data/adb/modules/$NAMES
+  DIR=/data/adb/modules/$NAME
   rm -f $DIR/update
   touch $DIR/remove
-  FILE=/data/adb/modules/$NAMES/uninstall.sh
+  FILE=/data/adb/modules/$NAME/uninstall.sh
   if [ -f $FILE ]; then
     sh $FILE
     rm -f $FILE
   fi
-  rm -rf /metadata/magisk/$NAMES
-  rm -rf /mnt/vendor/persist/magisk/$NAMES
-  rm -rf /persist/magisk/$NAMES
-  rm -rf /data/unencrypted/magisk/$NAMES
-  rm -rf /cache/magisk/$NAMES
+  rm -rf /metadata/magisk/$NAME
+  rm -rf /mnt/vendor/persist/magisk/$NAME
+  rm -rf /persist/magisk/$NAME
+  rm -rf /data/unencrypted/magisk/$NAME
+  rm -rf /cache/magisk/$NAME
+  rm -rf /cust/magisk/$NAME
 done
 }
 
 # conflict
-NAME="DTS_HPX
-      DTSX_Ultra
-      DTSXUltra"
+NAMES="DTS_HPX DTSX_Ultra DTSXUltra"
 conflict
 
 # function
@@ -207,11 +205,11 @@ fi
 DIR=/data/adb/modules/$MODID
 FILE=$DIR/module.prop
 if [ "`grep_prop data.cleanup $OPTIONALS`" == 1 ]; then
-  sed -i 's/^data.cleanup=1/data.cleanup=0/' $OPTIONALS
+  sed -i 's|^data.cleanup=1|data.cleanup=0|g' $OPTIONALS
   ui_print "- Cleaning-up $MODID data..."
   cleanup
   ui_print " "
-elif [ -d $DIR ] && ! grep -Eq "$MODNAME" $FILE; then
+elif [ -d $DIR ] && ! grep -q "$MODNAME" $FILE; then
   ui_print "- Different version detected"
   ui_print "  Cleaning-up $MODID data..."
   cleanup
@@ -225,15 +223,15 @@ ui_print "$FILE"
 ui_print "  Changing $PROP"
 ui_print "  to $MODPROP"
 ui_print "  Please wait..."
-sed -i "s/$PROP/$MODPROP/g" $FILE
+sed -i "s|$PROP|$MODPROP|g" $FILE
 ui_print " "
 }
 
 # patch
 if [ "`grep_prop dts.patch $OPTIONALS`" == 1 ]; then
   FILE=`find $MODPATH -type f -name libdts-eagle-shared.so\
-        -o -name libdtsdsec.so -o -name libomx-dts.so\
-        -o -name service.sh`
+         -o -name libdtsdsec.so -o -name libomx-dts.so\
+         -o -name service.sh`
   PROP=ro.build.product
   MODPROP=ro.build.dts.mod
   patch_file
@@ -241,70 +239,61 @@ fi
 
 # function
 hide_oat() {
-for APPS in $APP; do
-  mkdir -p `find $MODPATH/system -type d -name $APPS`/oat
-  touch `find $MODPATH/system -type d -name $APPS`/oat/.replace
+for APP in $APPS; do
+  REPLACE="$REPLACE
+  `find $MODPATH/system -type d -name $APP | sed "s|$MODPATH||g"`/oat"
 done
 }
 replace_dir() {
 if [ -d $DIR ]; then
-  mkdir -p $MODDIR
-  touch $MODDIR/.replace
+  REPLACE="$REPLACE $MODDIR"
 fi
 }
 hide_app() {
-DIR=$SYSTEM/app/$APPS
-MODDIR=$MODPATH/system/app/$APPS
-replace_dir
-DIR=$SYSTEM/priv-app/$APPS
-MODDIR=$MODPATH/system/priv-app/$APPS
-replace_dir
-DIR=$PRODUCT/app/$APPS
-MODDIR=$MODPATH/system/product/app/$APPS
-replace_dir
-DIR=$PRODUCT/priv-app/$APPS
-MODDIR=$MODPATH/system/product/priv-app/$APPS
-replace_dir
-DIR=$MY_PRODUCT/app/$APPS
-MODDIR=$MODPATH/system/product/app/$APPS
-replace_dir
-DIR=$MY_PRODUCT/priv-app/$APPS
-MODDIR=$MODPATH/system/product/priv-app/$APPS
-replace_dir
-DIR=$PRODUCT/preinstall/$APPS
-MODDIR=$MODPATH/system/product/preinstall/$APPS
-replace_dir
-DIR=$SYSTEM_EXT/app/$APPS
-MODDIR=$MODPATH/system/system_ext/app/$APPS
-replace_dir
-DIR=$SYSTEM_EXT/priv-app/$APPS
-MODDIR=$MODPATH/system/system_ext/priv-app/$APPS
-replace_dir
-DIR=$VENDOR/app/$APPS
-MODDIR=$MODPATH/system/vendor/app/$APPS
-replace_dir
-DIR=$VENDOR/euclid/product/app/$APPS
-MODDIR=$MODPATH/system/vendor/euclid/product/app/$APPS
-replace_dir
-}
-
-# hide
-APP="`ls $MODPATH/system/priv-app` `ls $MODPATH/system/app`"
-hide_oat
-APP="MusicFX DTSXULTRA"
-for APPS in $APP; do
-  hide_app
+for APP in $APPS; do
+  DIR=$SYSTEM/app/$APP
+  MODDIR=/system/app/$APP
+  replace_dir
+  DIR=$SYSTEM/priv-app/$APP
+  MODDIR=/system/priv-app/$APP
+  replace_dir
+  DIR=$PRODUCT/app/$APP
+  MODDIR=/system/product/app/$APP
+  replace_dir
+  DIR=$PRODUCT/priv-app/$APP
+  MODDIR=/system/product/priv-app/$APP
+  replace_dir
+  DIR=$MY_PRODUCT/app/$APP
+  MODDIR=/system/product/app/$APP
+  replace_dir
+  DIR=$MY_PRODUCT/priv-app/$APP
+  MODDIR=/system/product/priv-app/$APP
+  replace_dir
+  DIR=$PRODUCT/preinstall/$APP
+  MODDIR=/system/product/preinstall/$APP
+  replace_dir
+  DIR=$SYSTEM_EXT/app/$APP
+  MODDIR=/system/system_ext/app/$APP
+  replace_dir
+  DIR=$SYSTEM_EXT/priv-app/$APP
+  MODDIR=/system/system_ext/priv-app/$APP
+  replace_dir
+  DIR=$VENDOR/app/$APP
+  MODDIR=/system/vendor/app/$APP
+  replace_dir
+  DIR=$VENDOR/euclid/product/app/$APP
+  MODDIR=/system/vendor/euclid/product/app/$APP
+  replace_dir
 done
-
-# function
+}
 grant_permission() {
 if [ "$BOOTMODE" == true ]\
-&& ! dumpsys package $PKG | grep -Eq "$NAME: granted=true"; then
+&& ! dumpsys package $PKG | grep -q "$NAME: granted=true"; then
   FILE=`find $MODPATH/system -type f -name $APP.apk`
   ui_print "- Granting all runtime permissions for $PKG..."
   RES=`pm install -g -i com.android.vending $FILE 2>/dev/null`
   pm grant $PKG $NAME
-  if ! dumpsys package $PKG | grep -Eq "$NAME: granted=true"; then
+  if ! dumpsys package $PKG | grep -q "$NAME: granted=true"; then
     ui_print "  ! Failed."
     ui_print "  Maybe insufficient storage."
     ui_print "  or maybe there is in-built $PKG exist."
@@ -316,87 +305,134 @@ fi
 }
 
 # ui app
-if [ "`grep_prop dts.zte $OPTIONALS`" == 1 ]; then
+if [ "$MOD_UI" != true ]\
+&& [ "`grep_prop dts.zte $OPTIONALS`" == 1 ]; then
   ui_print "- Using DTS Ultra UI from ZTE instead of Audio Wizard UI"
-  APP="AudioWizard AudioWizardView"
-  for APPS in $APP; do
-    rm -rf `find $MODPATH/system -type d -name $APPS`
-    hide_app
-  done
-  cp -rf $MODPATH/system_zte/* $MODPATH/system
+  APPS="AudioWizard AudioWizardView"
   ui_print " "
 else
-  APP=DtsUltra
-  for APPS in $APP; do
-    hide_app
-  done
   APP=AudioWizard
   PKG=com.asus.maxxaudio
   NAME=android.permission.READ_CALL_LOG
   grant_permission
-  sed -i 's/#o//g' $MODPATH/.aml.sh
+  sed -i 's|#o||g' $MODPATH/.aml.sh
+  APPS=DtsUltra
 fi
-rm -rf $MODPATH/system_zte
+for APP in $APPS; do
+  rm -rf `find $MODPATH/system -type d -name $APP`
+done
+hide_app
+
+# hide
+APPS="`ls $MODPATH/system/priv-app` `ls $MODPATH/system/app`"
+hide_oat
+APPS="MusicFX DTSXULTRA"
+hide_app
 
 # stream
 FILE=$MODPATH/.aml.sh
 PROP=`grep_prop stream.mode $OPTIONALS`
-if echo "$PROP" | grep -Eq r; then
+if echo "$PROP" | grep -q r; then
   ui_print "- Activating ring stream..."
-  sed -i 's/#r//g' $FILE
+  sed -i 's|#r||g' $FILE
   ui_print " "
 fi
-if echo "$PROP" | grep -Eq a; then
+if echo "$PROP" | grep -q a; then
   ui_print "- Activating alarm stream..."
-  sed -i 's/#a//g' $FILE
+  sed -i 's|#a||g' $FILE
   ui_print " "
 fi
-if echo "$PROP" | grep -Eq s; then
+if echo "$PROP" | grep -q s; then
   ui_print "- Activating system stream..."
-  sed -i 's/#s//g' $FILE
+  sed -i 's|#s||g' $FILE
   ui_print " "
 fi
-if echo "$PROP" | grep -Eq v; then
+if echo "$PROP" | grep -q v; then
   ui_print "- Activating voice_call stream..."
-  sed -i 's/#v//g' $FILE
+  sed -i 's|#v||g' $FILE
   ui_print " "
 fi
-if echo "$PROP" | grep -Eq n; then
+if echo "$PROP" | grep -q n; then
   ui_print "- Activating notification stream..."
-  sed -i 's/#n//g' $FILE
+  sed -i 's|#n||g' $FILE
+  ui_print " "
+fi
+if echo "$PROP" | grep -q b; then
+  ui_print "- Activating bluetooth_sco stream..."
+  sed -i 's|#b||g' $FILE
+  ui_print " "
+fi
+if echo "$PROP" | grep -q f; then
+  ui_print "- Activating dtmf stream..."
+  sed -i 's|#f||g' $FILE
+  ui_print " "
+fi
+if echo "$PROP" | grep -q e; then
+  ui_print "- Activating enforced_audible stream..."
+  sed -i 's|#e||g' $FILE
+  ui_print " "
+fi
+if echo "$PROP" | grep -q y; then
+  ui_print "- Activating accessibility stream..."
+  sed -i 's|#y||g' $FILE
+  ui_print " "
+fi
+if echo "$PROP" | grep -q t; then
+  ui_print "- Activating tts stream..."
+  sed -i 's|#t||g' $FILE
+  ui_print " "
+fi
+if echo "$PROP" | grep -q i; then
+  ui_print "- Activating assistant stream..."
+  sed -i 's|#i||g' $FILE
+  ui_print " "
+fi
+if echo "$PROP" | grep -q c; then
+  ui_print "- Activating call_assistant stream..."
+  sed -i 's|#c||g' $FILE
+  ui_print " "
+fi
+if echo "$PROP" | grep -q p; then
+  ui_print "- Activating patch stream..."
+  sed -i 's|#p||g' $FILE
+  ui_print " "
+fi
+if echo "$PROP" | grep -q g; then
+  ui_print "- Activating rerouting stream..."
+  sed -i 's|#g||g' $FILE
   ui_print " "
 fi
 
 # function
 file_check_vendor() {
-for NAMES in $NAME; do
+for NAME in $NAMES; do
   if [ "$IS64BIT" == true ]; then
-    FILE=$VENDOR/lib64/$NAMES
-    FILE2=$ODM/lib64/$NAMES
+    FILE=$VENDOR/lib64/$NAME
+    FILE2=$ODM/lib64/$NAME
     if [ -f $FILE ] || [ -f $FILE2 ]; then
-      ui_print "- Detected $NAMES 64"
+      ui_print "- Detected $NAME 64"
       ui_print " "
-      rm -f $MODPATH/system/vendor/lib64/$NAMES
+      rm -f $MODPATH/system/vendor/lib64/$NAME
     fi
   fi
-  FILE=$VENDOR/lib/$NAMES
-  FILE2=$ODM/lib/$NAMES
+  FILE=$VENDOR/lib/$NAME
+  FILE2=$ODM/lib/$NAME
   if [ -f $FILE ] || [ -f $FILE2 ]; then
-    ui_print "- Detected $NAMES"
+    ui_print "- Detected $NAME"
     ui_print " "
-    rm -f $MODPATH/system/vendor/lib/$NAMES
+    rm -f $MODPATH/system/vendor/lib/$NAME
   fi
 done
 }
 
 # check
-NAME="libomx-dts.so libstagefright_soft_dtsdec.so"
+NAMES="libomx-dts.so libstagefright_soft_dtsdec.so"
 file_check_vendor
 
 # audio rotation
 FILE=$MODPATH/service.sh
 if [ "`grep_prop audio.rotation $OPTIONALS`" == 1 ]; then
-  ui_print "- Activating ro.audio.monitorRotation=true"
+  ui_print "- Enables ro.audio.monitorRotation=true"
   sed -i '1i\
 resetprop ro.audio.monitorRotation true' $FILE
   ui_print " "
@@ -405,27 +441,11 @@ fi
 # raw
 FILE=$MODPATH/.aml.sh
 if [ "`grep_prop disable.raw $OPTIONALS`" == 0 ]; then
-  ui_print "- Not disabling Ultra Low Latency playback (RAW)"
+  ui_print "- Not disables Ultra Low Latency playback (RAW)"
   ui_print " "
 else
-  sed -i 's/#u//g' $FILE
+  sed -i 's|#u||g' $FILE
 fi
-
-# other
-FILE=$MODPATH/service.sh
-if [ "`grep_prop other.etc $OPTIONALS`" == 1 ]; then
-  ui_print "- Activating other etc files bind mount..."
-  sed -i 's/#p//g' $FILE
-  ui_print " "
-fi
-
-# permission
-ui_print "- Setting permission..."
-DIR=`find $MODPATH/system/vendor -type d`
-for DIRS in $DIR; do
-  chown 0.2000 $DIRS
-done
-ui_print " "
 
 # vendor_overlay
 DIR=/product/vendor_overlay
@@ -436,15 +456,34 @@ if [ "`grep_prop fix.vendor_overlay $OPTIONALS`" == 1 ]\
   ui_print " "
 fi
 
-# feature
+# function
+check_feature() {
 NAME=asus.software.marketapp
 if [ "$BOOTMODE" == true ]\
-&& ! pm list features | grep -Eq $NAME; then
+&& ! pm list features | grep -q $NAME; then
   echo 'rm -rf /data/user*/*/com.android.vending/*' >> $MODPATH/cleaner.sh
   ui_print "- Play Store data will be cleared automatically on the next"
   ui_print "  reboot"
   ui_print " "
 fi
+}
+
+# run
+. $MODPATH/copy.sh
+. $MODPATH/.aml.sh
+
+# unmount
+if [ "$BOOTMODE" == true ] && [ ! "$MAGISKPATH" ]; then
+  unmount_mirror
+fi
+
+
+
+
+
+
+
+
 
 
 

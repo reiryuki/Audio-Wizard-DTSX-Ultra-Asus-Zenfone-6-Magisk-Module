@@ -2,7 +2,7 @@
 
 ## DISCLAIMER
 - Asus & DTS Apps and blobs are owned by Asus™ & DTS™.
-- The MIT license specified here is for the Magisk Module, not for Asus & DTS apps and blobs.
+- The MIT license specified here is for the Magisk Module only, not for Asus & DTS apps and blobs.
 
 ## Descriptions
 - Equalizer soundfx ported from Asus Zenfone 6 (ASUS_I01WD) and integrated as a Magisk Module for all supported and rooted devices with Magisk
@@ -12,19 +12,21 @@
 ## Sources
 - asus/WW_I01WD/ASUS_I01WD:11/RKQ1.200710.002/18.0610.2011.107-0:user/release-keys from https://t.me/ZF6_Dev
 - libdtsaudio.so: https://github.com/TadiT7/nubia_nx619j_dump/tree/76a9813a81f1973fcbff9dd21d53b6e9040a45f8
-- system_zte: https://github.com/C457/proprietary_vendor_zte_pine/tree/c22a26a9074dbf3f0bb6fbc43e7203531145d78e
+- DtsUltra.apk: https://dumps.tadiphone.dev/dumps/zte/p855a01 msmnile-user-9-PKQ1.190328.001-68-release-keys
 
 ## Screenshots
 - https://t.me/androidryukimods/47
 
 ## Requirements
 - Android 9 and up
-- Magisk installed
+- Magisk or KernelSU installed
 
 ## Installation Guide & Download Link
-- Install this module https://www.pling.com/p/1531567/ via Magisk app or Recovery
+- Install this module https://www.pling.com/p/1531567/ via Magisk app or KernelSU app or Recovery if Magisk installed
 - Install AML Magisk Module https://t.me/androidryukimodsdiscussions/29836 only if using any other audio mod module
 - Reboot
+- If you are using KernelSU, you need to allow superuser list manually all package name listed in package.txt (and your home launcher app also) (enable show system apps) and reboot after
+- If you are using SUList, you need to allow list manually your home launcher app (enable show system apps) and reboot after
 
 ## Troubleshootings and Optionals
 - https://t.me/androidryukimodsdiscussions/29836
@@ -41,7 +43,7 @@
 - Android 11 DotOS ROM
 - Android 12 Ancient OS ROM
 - Android 12.1 Nusantara ROM
-- Android 13 AOSP ROM
+- Android 13 AOSP ROM & CrDroid ROM
 
 ## Credits and contributors
 - https://t.me/ZF6_Dev
