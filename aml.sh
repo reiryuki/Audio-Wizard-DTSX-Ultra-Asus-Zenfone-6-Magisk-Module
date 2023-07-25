@@ -1,7 +1,12 @@
 [ -z $MODPATH ] && MODPATH=${0%/*}
+[ -z $API ] && API=`getprop ro.build.version.sdk`
 
 # destination
-LIBPATH="\/vendor\/lib\/soundfx"
+if [ "$API" -ge 26 ]; then
+  LIBPATH="\/vendor\/lib\/soundfx"
+else
+  LIBPATH="\/system\/lib\/soundfx"
+fi
 MODAEC=`find $MODPATH -type f -name *audio*effects*.conf`
 MODAEX=`find $MODPATH -type f -name *audio*effects*.xml`
 MODAP=`find $MODPATH -type f -name *policy*.conf -o -name *policy*.xml`

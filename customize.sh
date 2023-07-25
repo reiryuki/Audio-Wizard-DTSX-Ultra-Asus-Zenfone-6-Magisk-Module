@@ -429,6 +429,14 @@ done
 NAMES="libomx-dts.so libstagefright_soft_dtsdec.so"
 file_check_vendor
 
+# directory
+if [ "$API" -le 25 ]; then
+  ui_print "- /vendor/lib/soundfx is not supported in SDK 25 and bellow"
+  ui_print "  Using /system/lib/soundfx instead"
+  mv -f $MODPATH/system/vendor/lib* $MODPATH/system
+  ui_print " "
+fi
+
 # audio rotation
 FILE=$MODPATH/service.sh
 if [ "`grep_prop audio.rotation $OPTIONALS`" == 1 ]; then

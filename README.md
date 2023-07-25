@@ -18,7 +18,7 @@
 - https://t.me/androidryukimods/47
 
 ## Requirements
-- Android 9 and up
+- Android 6 and up
 - Magisk or KernelSU installed
 
 ## Installation Guide & Download Link
@@ -44,6 +44,9 @@
 - Android 12 Ancient OS ROM
 - Android 12.1 Nusantara ROM
 - Android 13 AOSP ROM & CrDroid ROM
+
+## Known Issue
+- General devices option in Audio Wizard app does not show up in Android 13
 
 ## Credits and contributors
 - https://t.me/ZF6_Dev
