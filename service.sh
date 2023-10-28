@@ -1,11 +1,15 @@
 MODPATH=${0%/*}
-API=`getprop ro.build.version.sdk`
 
 # log
-exec 2>$MODPATH/debug.log
+LOGFILE=$MODPATH/debug.log
+exec 2>$LOGFILE
 set -x
 
+# var
+API=`getprop ro.build.version.sdk`
+
 # property
+resetprop ro.audio.ignore_effects false
 resetprop ro.build.product ZS630KL
 resetprop ro.product.model ASUS_I01WD
 #resetprop ro.product.name WW_I01WD
@@ -20,7 +24,6 @@ resetprop ro.asus.aw.settingentry 1
 resetprop ro.asus.dts.headphone.default_enable false
 resetprop ro.asus.audiowizard.outdoor 1
 resetprop ro.asus.audio.realStereo true
-resetprop ro.config.media_vol_steps 20
 resetprop ro.product.lge.globaleffect.dts false
 resetprop ro.lge.globaleffect.dts false
 resetprop ro.odm.config.dts_licensepath /vendor/etc/dts/
@@ -53,7 +56,7 @@ else
 fi
 PID=`pidof $SERVER`
 if [ "$PID" ]; then
-  killall $SERVER
+  killall $SERVER android.hardware.audio@4.0-service-mediatek
 fi
 
 # wait
@@ -107,9 +110,16 @@ until [ "`getprop sys.boot_completed`" == "1" ]; do
   sleep 10
 done
 
+# settings
+SET=system_theme_type
+VAL=`settings get system $SET`
+if [ "$VAL" != 1 ]; then
+  settings put system $SET 1
+fi
+
 # grant
 PKG=com.asus.maxxaudio.audiowizard
-if pm list packages | grep $PKG; then
+if appops get $PKG > /dev/null 2>&1; then
   pm grant $PKG android.permission.RECORD_AUDIO
   if [ "$API" -ge 33 ]; then
     appops set $PKG ACCESS_RESTRICTED_SETTINGS allow
@@ -126,7 +136,7 @@ fi
 
 # grant
 PKG=com.dts.dtsxultra
-if pm list packages | grep $PKG; then
+if appops get $PKG > /dev/null 2>&1; then
   if [ "$API" -ge 33 ]; then
     pm grant $PKG android.permission.POST_NOTIFICATIONS
     appops set $PKG ACCESS_RESTRICTED_SETTINGS allow
@@ -143,7 +153,7 @@ fi
 
 # grant
 PKG=com.asus.maxxaudio
-if pm list packages | grep $PKG; then
+if appops get $PKG > /dev/null 2>&1; then
   pm grant $PKG android.permission.READ_EXTERNAL_STORAGE
   pm grant $PKG android.permission.WRITE_EXTERNAL_STORAGE
   pm grant $PKG android.permission.READ_PHONE_STATE
@@ -161,10 +171,10 @@ fi
 
 # function
 stop_log() {
-FILE=$MODPATH/debug.log
-SIZE=`du $FILE | sed "s|$FILE||g"`
+SIZE=`du $LOGFILE | sed "s|$LOGFILE||g"`
 if [ "$LOG" != stopped ] && [ "$SIZE" -gt 50 ]; then
   exec 2>/dev/null
+  set +x
   LOG=stopped
 fi
 }
@@ -178,15 +188,11 @@ sleep 15
 stop_log
 NEXTPID=`pidof $SERVER`
 if [ "`getprop init.svc.$SERVER`" != stopped ]; then
-  until [ "$PID" != "$NEXTPID" ]; do
-    check_audioserver
-  done
-  killall $PROC
-  check_audioserver
+  [ "$PID" != "$NEXTPID" ] && killall $PROC
 else
   start $SERVER
-  check_audioserver
 fi
+check_audioserver
 }
 
 # check

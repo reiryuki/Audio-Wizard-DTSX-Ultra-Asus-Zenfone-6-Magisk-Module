@@ -29,10 +29,10 @@
 - If you are using SUList, you need to allow list manually your home launcher app (enable show system apps) and reboot after
 
 ## Troubleshootings and Optionals
-- https://t.me/androidryukimodsdiscussions/29836
-- https://t.me/androidryukimodsdiscussions/60861
-- https://t.me/androidryukimodsdiscussions/26764
 - https://t.me/androidryukimodsdiscussions/3107
+- Global: https://t.me/androidryukimodsdiscussions/29836
+- Global: https://t.me/androidryukimodsdiscussions/60861
+- Stream: https://t.me/androidryukimodsdiscussions/26764
 
 ## Support & Bug Report
 - https://t.me/androidryukimodsdiscussions/2618
@@ -45,7 +45,8 @@
 - Android 12.1 Nusantara ROM
 - Android 13 AOSP ROM & CrDroid ROM
 
-## Known Issue
+## Known Issues
+- Bug microphone in some game apps
 - General devices option in Audio Wizard app does not show up in Android 13
 
 ## Credits and contributors
@@ -55,7 +56,7 @@
 - You can contribute ideas about this Magisk Module here: https://t.me/androidappsportdevelopment
 
 ## Thanks for Donations
-- This Magisk Module is always will be free but you can however show us that you are care by making a donations:
+This Magisk Module is always will be free but you can however show us that you are care by making a donations:
 - https://ko-fi.com/reiryuki
 - https://www.paypal.me/reiryuki
 - https://t.me/androidryukimodsdiscussions/2619

@@ -85,9 +85,7 @@ fi
 
 # directory
 DIR=/data/vendor/audio/dts
-if [ ! -d $DIR ]; then
-  mkdir -p $DIR
-fi
+mkdir -p $DIR
 chmod 0771 $DIR
 chown 1013.1005 $DIR
 
@@ -95,13 +93,6 @@ chown 1013.1005 $DIR
 PROP=`getprop debug.force_low_ram`
 if [ "$PROP" == true ]; then
   resetprop debug.force_low_ram false
-fi
-
-# cleaning
-FILE=$MODPATH/cleaner.sh
-if [ -f $FILE ]; then
-  . $FILE
-  rm -f $FILE
 fi
 
 # permission
@@ -150,7 +141,12 @@ if ! grep delta /data/adb/magisk/util_functions.sh; then
   mount_helper
 fi
 
-
+# cleaning
+FILE=$MODPATH/cleaner.sh
+if [ -f $FILE ]; then
+  . $FILE
+  mv -f $FILE $FILE\.txt
+fi
 
 
 
