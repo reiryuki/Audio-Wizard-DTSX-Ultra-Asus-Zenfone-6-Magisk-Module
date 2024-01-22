@@ -46,36 +46,28 @@ FILE=$MODPATH/sepolicy.pfsd
 sepolicy_sh
 
 # list
-(
 PKGS="`cat $MODPATH/package.txt`
        com.asus.audiowizard"
 for PKG in $PKGS; do
-  magisk --denylist rm $PKG
-  magisk --sulist add $PKG
+  magisk --denylist rm $PKG 2>/dev/null
+  magisk --sulist add $PKG 2>/dev/null
 done
-FILE=$MODPATH/tmp_file
-magisk --hide sulist 2>$FILE
-if [ "`cat $FILE`" == 'SuList is enforced' ]; then
+if magisk magiskhide sulist; then
   for PKG in $PKGS; do
-    magisk --hide add $PKG
+    magisk magiskhide add $PKG
   done
 else
   for PKG in $PKGS; do
-    magisk --hide rm $PKG
+    magisk magiskhide rm $PKG
   done
 fi
-rm -f $FILE
-) 2>/dev/null
 
 # run
 . $MODPATH/copy.sh
 . $MODPATH/.aml.sh
 
-# delete directory
-DIR=/data/misc/dts
-if [ -d $DIR ]; then
-  rm -rf $DIR
-fi
+# remove
+rm -rf /data/misc/dts/*
 
 # delete directory
 DIR=/data/misc/aw
@@ -137,7 +129,7 @@ fi
 }
 
 # mount
-if ! grep delta /data/adb/magisk/util_functions.sh; then
+if ! grep -E 'delta|Delta|kitsune' /data/adb/magisk/util_functions.sh; then
   mount_helper
 fi
 

@@ -7,7 +7,7 @@
 ## Descriptions
 - Equalizer soundfx ported from Asus Zenfone 6 (ASUS_I01WD) and integrated as a Magisk Module for all supported and rooted devices with Magisk
 - Post process type soundfx
-- Changes ro.build.product and ro.product.model system property, may breaks your platform apps and features functionality
+- Changes/spoofs ro.build.product to ZE620KL and ro.product.model to ASUS_X00QD which may break some system apps and features functionality
 
 ## Sources
 - asus/WW_I01WD/ASUS_I01WD:11/RKQ1.200710.002/18.0610.2011.107-0:user/release-keys from https://t.me/ZF6_Dev
@@ -23,7 +23,7 @@
 
 ## Installation Guide & Download Link
 - Install this module https://www.pling.com/p/1531567/ via Magisk app or KernelSU app or Recovery if Magisk installed
-- Install AML Magisk Module https://t.me/androidryukimodsdiscussions/29836 only if using any other audio mod module
+- Install AML Magisk Module https://t.me/androidryukimodsdiscussions/29836 only if using any other else audio mod module
 - Reboot
 - If you are using KernelSU, you need to allow superuser list manually all package name listed in package.txt (and your home launcher app also) (enable show system apps) and reboot after
 - If you are using SUList, you need to allow list manually your home launcher app (enable show system apps) and reboot after
@@ -44,10 +44,11 @@
 - Android 12 Ancient OS ROM
 - Android 12.1 Nusantara ROM
 - Android 13 AOSP ROM & CrDroid ROM
+- Android 14 LineageOS ROM
 
 ## Known Issues
 - Bug microphone in some game apps
-- General devices option in Audio Wizard app does not show up in Android 13
+- General devices option in Audio Wizard app does not show up in Android 13 and up
 
 ## Credits and contributors
 - https://t.me/ZF6_Dev
