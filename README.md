@@ -7,7 +7,7 @@
 ## Descriptions
 - Equalizer soundfx ported from Asus Zenfone 6 (ASUS_I01WD) and integrated as a Magisk Module for all supported and rooted devices with Magisk
 - Post process type soundfx
-- Changes/spoofs ro.build.product to ZE620KL and ro.product.model to ASUS_X00QD which may break some system apps and features functionality
+- Changes/spoofs ro.build.product to ZS630KL and ro.product.model to ASUS_I01WD which may break some system apps and features functionality
 
 ## Sources
 - asus/WW_I01WD/ASUS_I01WD:11/RKQ1.200710.002/18.0610.2011.107-0:user/release-keys from https://t.me/ZF6_Dev
