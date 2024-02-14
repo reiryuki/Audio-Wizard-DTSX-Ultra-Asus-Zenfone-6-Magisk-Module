@@ -104,7 +104,7 @@ if [ -d $AML ] && [ ! -f $AML/disable ]\
 fi
 
 # wait
-until [ "`getprop sys.boot_completed`" == "1" ]; do
+until [ "`getprop sys.boot_completed`" == 1 ]; do
   sleep 10
 done
 
@@ -126,7 +126,7 @@ if appops get $PKG > /dev/null 2>&1; then
     appops set $PKG AUTO_REVOKE_PERMISSIONS_IF_UNUSED ignore
   fi
   PKGOPS=`appops get $PKG`
-  UID=`dumpsys package $PKG 2>/dev/null | grep -m 1 userId= | sed 's|    userId=||g'`
+  UID=`dumpsys package $PKG 2>/dev/null | grep -m 1 Id= | sed -e 's|    userId=||g' -e 's|    appId=||g'`
   if [ "$UID" ] && [ "$UID" -gt 9999 ]; then
     UIDOPS=`appops get --uid "$UID"`
   fi
@@ -143,7 +143,7 @@ if appops get $PKG > /dev/null 2>&1; then
     appops set $PKG AUTO_REVOKE_PERMISSIONS_IF_UNUSED ignore
   fi
   PKGOPS=`appops get $PKG`
-  UID=`dumpsys package $PKG 2>/dev/null | grep -m 1 userId= | sed 's|    userId=||g'`
+  UID=`dumpsys package $PKG 2>/dev/null | grep -m 1 Id= | sed -e 's|    userId=||g' -e 's|    appId=||g'`
   if [ "$UID" ] && [ "$UID" -gt 9999 ]; then
     UIDOPS=`appops get --uid "$UID"`
   fi
@@ -161,7 +161,7 @@ if appops get $PKG > /dev/null 2>&1; then
     appops set $PKG AUTO_REVOKE_PERMISSIONS_IF_UNUSED ignore
   fi
   PKGOPS=`appops get $PKG`
-  UID=`dumpsys package $PKG 2>/dev/null | grep -m 1 userId= | sed 's|    userId=||g'`
+  UID=`dumpsys package $PKG 2>/dev/null | grep -m 1 Id= | sed -e 's|    userId=||g' -e 's|    appId=||g'`
   if [ "$UID" ] && [ "$UID" -gt 9999 ]; then
     UIDOPS=`appops get --uid "$UID"`
   fi
