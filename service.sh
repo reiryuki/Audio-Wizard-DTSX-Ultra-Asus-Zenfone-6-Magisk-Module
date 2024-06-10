@@ -108,6 +108,23 @@ until [ "`getprop sys.boot_completed`" == 1 ]; do
   sleep 10
 done
 
+# list
+PKGS="`cat $MODPATH/package.txt`
+       com.asus.audiowizard"
+for PKG in $PKGS; do
+  magisk --denylist rm $PKG 2>/dev/null
+  magisk --sulist add $PKG 2>/dev/null
+done
+if magisk magiskhide sulist; then
+  for PKG in $PKGS; do
+    magisk magiskhide add $PKG
+  done
+else
+  for PKG in $PKGS; do
+    magisk magiskhide rm $PKG
+  done
+fi
+
 # settings
 SET=system_theme_type
 VAL=`settings get system $SET`
@@ -197,7 +214,8 @@ check_audioserver
 }
 
 # check
-PROC="com.asus.audiowizard com.asus.maxxaudio.audiowizard com.dts.dtsxultra"
+PROC="com.asus.audiowizard com.asus.maxxaudio
+      com.asus.maxxaudio.audiowizard com.dts.dtsxultra"
 killall $PROC
 check_audioserver
 
