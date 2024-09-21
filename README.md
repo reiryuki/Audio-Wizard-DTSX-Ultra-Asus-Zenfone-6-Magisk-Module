@@ -5,8 +5,8 @@
 - The MIT license specified here is for the Magisk Module only, not for Asus & DTS apps and blobs.
 
 ## Descriptions
-- Equalizer soundfx ported from Asus Zenfone 6 (ASUS_I01WD) and integrated as a Magisk Module for all supported and rooted devices with Magisk
-- Post process type soundfx
+- Equalizer sound effect ported from Asus Zenfone 6 (ASUS_I01WD) and integrated as a Magisk Module for all supported and rooted devices with Magisk
+- Post process type sound effect
 - Changes/spoofs ro.build.product to ZS630KL and ro.product.model to ASUS_I01WD which may break some system apps and features functionality
 
 ## Sources
@@ -19,12 +19,14 @@
 - https://t.me/androidryukimods/47
 
 ## Requirements
-- Android 6 and up
+- ARM64 or ARM architecture
+- Android 6 (SDK 23) and up
 - Magisk or KernelSU installed
 
 ## Installation Guide & Download Link
 - Install this module https://www.pling.com/p/1531567/ via Magisk app or KernelSU app or Recovery if Magisk installed
 - Install AML Magisk Module https://t.me/androidryukimodsdiscussions/29836 only if using any other else audio mod module
+- If you are using KernelSU, you need to disable Unmount Modules by Default in KernelSU app settings
 - Reboot
 - If you are using KernelSU, you need to allow superuser list manually all package name listed in package.txt (and your home launcher app also) (enable show system apps) and reboot afterwards
 - If you are using SUList, you need to allow list manually your home launcher app (enable show system apps) and reboot afterwards
@@ -39,24 +41,17 @@
 - https://t.me/androidryukimodsdiscussions/2618
 - If you don't do above, issues will be closed immediately
 
-## Tested on
-- Android 10 CrDroid ROM
-- Android 11 DotOS ROM
-- Android 12 Ancient OS ROM
-- Android 12.1 Nusantara ROM
-- Android 13 AOSP ROM & CrDroid ROM
-- Android 14 LineageOS ROM
-
 ## Known Issue
 - Probably still bug microphone in game apps in some devices
 
 ## Credits and Contributors
+- @HuskyDG
 - https://t.me/ZF6_Dev
 - https://t.me/viperatmos
 - https://t.me/androidryukimodsdiscussions
 - You can contribute ideas about this Magisk Module here: https://t.me/androidappsportdevelopment
 
 ## Sponsors
-- https://t.me/androidryukimodsdiscussions/2619
+- https://t.me/ryukinotes/25
 
 

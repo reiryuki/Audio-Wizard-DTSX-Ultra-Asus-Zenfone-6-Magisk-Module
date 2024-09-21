@@ -214,8 +214,7 @@ check_audioserver
 }
 
 # check
-PROC="com.asus.audiowizard com.asus.maxxaudio
-      com.asus.maxxaudio.audiowizard com.dts.dtsxultra"
+PROC=com.asus.audiowizard
 killall $PROC
 check_audioserver
 

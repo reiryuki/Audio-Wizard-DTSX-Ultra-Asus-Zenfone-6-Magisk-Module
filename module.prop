@@ -1,8 +1,8 @@
 id=AudioWizard
 name=Audio Wizard DTSX Ultra Asus Zenfone 6
-version=v5.17
-versionCode=57
+version=v5.18
+versionCode=58
 author=Rei Ryuki the Fixer
-description=An EQ post process type soundfx ported from Asus Zenfone 6 (ASUS_I01WD) for any Android 6 and up.
+description=Equalizer post process type sound effect ported from Asus Zenfone 6 (ASUS_I01WD) for any Android 6 (SDK 23) and up, ARM64 or ARM architecture.
 
 
