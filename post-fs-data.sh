@@ -47,6 +47,18 @@ sepolicy_sh
 
 # run
 . $MODPATH/copy.sh
+
+# conflict
+AML=/data/adb/modules/aml
+ACDB=/data/adb/modules/acdb
+if [ -d $ACDB ] && [ ! -f $ACDB/disable ]; then
+  if [ ! -d $AML ] || [ -f $AML/disable ]; then
+    rm -f `find $MODPATH/system/etc $MODPATH/vendor/etc\
+     $MODPATH/system/vendor/etc -maxdepth 1 -type f -name\
+     *audio*effects*.conf -o -name *audio*effects*.xml`
+  fi
+fi
+
 . $MODPATH/.aml.sh
 
 # remove
@@ -67,7 +79,7 @@ chown 1013.1005 $DIR
 # no force low ram
 PROP=`getprop debug.force_low_ram`
 if [ "$PROP" == true ]; then
-  resetprop debug.force_low_ram false
+  resetprop -n debug.force_low_ram false
 fi
 
 # permission
