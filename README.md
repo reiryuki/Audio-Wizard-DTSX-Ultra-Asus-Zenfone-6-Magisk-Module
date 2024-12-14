@@ -12,6 +12,7 @@
 ## Sources
 - asus/WW_I01WD/ASUS_I01WD:11/RKQ1.200710.002/18.0610.2011.107-0:user/release-keys from https://t.me/ZF6_Dev
 - libdtsaudio.so: https://github.com/TadiT7/nubia_nx619j_dump/tree/76a9813a81f1973fcbff9dd21d53b6e9040a45f8
+- libsqlite.so: https://dumps.tadiphone.dev/dumps/asus/i01wd qssi-user-10-QP1A.190711.005-17.1810.1911.110-0-release-keys
 - DtsUltra.apk: https://dumps.tadiphone.dev/dumps/zte/p855a01 msmnile-user-9-PKQ1.190328.001-68-release-keys
 - libmagiskpolicy.so: Kitsune Mask R6687BB53
 
@@ -43,7 +44,6 @@
 
 ## Known Issues
 - Probably still bug microphone in game apps in some devices
-- Does not work in Android 14 QPR3 (AP2A)
 
 ## Credits and Contributors
 - @HuskyDG
