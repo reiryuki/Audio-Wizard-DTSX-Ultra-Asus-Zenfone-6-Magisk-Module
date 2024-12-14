@@ -42,7 +42,7 @@
 - https://t.me/androidryukimodsdiscussions/2618
 - If you don't do above, issues will be closed immediately
 
-## Known Issues
+## Known Issue
 - Probably still bug microphone in game apps in some devices
 
 ## Credits and Contributors
