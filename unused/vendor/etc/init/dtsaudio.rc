@@ -1,3 +1,4 @@
 on post-fs-data
     mkdir /data/vendor/audio/dts 0771 media audio
-    
+    setprop ro.vendor.dts.licensepath "/vendor/etc/dts/"
+    setprop ro.vendor.dts.cfgpath "/vendor/etc/dts/"
