@@ -522,7 +522,12 @@ for FILE in $FILES; do
     if [ -f $DES ]; then
       ui_print "- Detected"
       ui_print "$DES"
-      rm -f $MODPATH/system/vendor$FILE
+      NAME=`basename $FILE`
+      if echo $FILE | grep lib64; then
+        rm -f $MODPATH/system/vendor/lib64/$NAME
+      else
+        rm -f $MODPATH/system/vendor/lib/$NAME
+      fi
       ui_print " "
     fi
   done
@@ -535,7 +540,12 @@ for FILE in $FILES; do
     if [ -f $DES ]; then
       ui_print "- Detected"
       ui_print "$DES"
-      rm -f $MODPATH/system/vendor$FILE
+      NAME=`basename $FILE`
+      if echo $FILE | grep lib64; then
+        rm -f $MODPATH/system/vendor/lib64/$NAME
+      else
+        rm -f $MODPATH/system/vendor/lib/$NAME
+      fi
       ui_print " "
     fi
   done
