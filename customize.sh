@@ -202,20 +202,17 @@ sed -i 's|#2||g' $MODPATH/post-fs-data.sh
 }
 permissive() {
 FILE=/sys/fs/selinux/enforce
-SELINUX=`cat $FILE`
-if [ "$SELINUX" == 1 ]; then
-  if ! setenforce 0; then
-    echo 0 > $FILE
-  fi
-  SELINUX=`cat $FILE`
-  if [ "$SELINUX" == 1 ]; then
+FILE2=/sys/fs/selinux/policy
+if [ "`toybox cat $FILE`" = 1 ]; then
+  chmod 640 $FILE
+  chmod 440 $FILE2
+  echo 0 > $FILE
+  if [ "`toybox cat $FILE`" = 1 ]; then
     ui_print "  Your device can't be turned to Permissive state."
     ui_print "  Using Magisk Permissive mode instead."
     permissive_2
   else
-    if ! setenforce 1; then
-      echo 1 > $FILE
-    fi
+    echo 1 > $FILE
     sed -i 's|#1||g' $MODPATH/post-fs-data.sh
   fi
 else
@@ -523,7 +520,7 @@ for FILE in $FILES; do
       ui_print "- Detected"
       ui_print "$DES"
       NAME=`basename $FILE`
-      if echo $FILE | grep lib64; then
+      if echo $FILE | grep -q lib64; then
         rm -f $MODPATH/system/vendor/lib64/$NAME
       else
         rm -f $MODPATH/system/vendor/lib/$NAME
@@ -541,7 +538,7 @@ for FILE in $FILES; do
       ui_print "- Detected"
       ui_print "$DES"
       NAME=`basename $FILE`
-      if echo $FILE | grep lib64; then
+      if echo $FILE | grep -q lib64; then
         rm -f $MODPATH/system/vendor/lib64/$NAME
       else
         rm -f $MODPATH/system/vendor/lib/$NAME

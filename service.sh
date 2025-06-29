@@ -135,7 +135,7 @@ fi
 # grant
 PKG=com.asus.maxxaudio.audiowizard
 if appops get $PKG > /dev/null 2>&1; then
-  pm grant $PKG android.permission.RECORD_AUDIO
+  pm grant --all-permissions $PKG
   if [ "$API" -ge 33 ]; then
     appops set $PKG ACCESS_RESTRICTED_SETTINGS allow
   fi
@@ -152,8 +152,8 @@ fi
 # grant
 PKG=com.dts.dtsxultra
 if appops get $PKG > /dev/null 2>&1; then
+  pm grant --all-permissions $PKG
   if [ "$API" -ge 33 ]; then
-    pm grant $PKG android.permission.POST_NOTIFICATIONS
     appops set $PKG ACCESS_RESTRICTED_SETTINGS allow
   fi
   if [ "$API" -ge 30 ]; then
@@ -169,10 +169,7 @@ fi
 # grant
 PKG=com.asus.maxxaudio
 if appops get $PKG > /dev/null 2>&1; then
-  pm grant $PKG android.permission.READ_EXTERNAL_STORAGE
-  pm grant $PKG android.permission.WRITE_EXTERNAL_STORAGE
-  pm grant $PKG android.permission.READ_PHONE_STATE
-  pm grant $PKG android.permission.READ_CALL_LOG
+  pm grant --all-permissions $PKG
   appops set $PKG WRITE_SETTINGS allow
   if [ "$API" -ge 30 ]; then
     appops set $PKG AUTO_REVOKE_PERMISSIONS_IF_UNUSED ignore
