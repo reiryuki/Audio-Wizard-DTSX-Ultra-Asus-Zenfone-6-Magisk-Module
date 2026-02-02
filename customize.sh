@@ -395,24 +395,6 @@ for APP in $APPS; do
   replace_dir
 done
 }
-grant_permission() {
-if [ "$BOOTMODE" == true ]\
-&& ! dumpsys package $PKG 2>/dev/null | grep -q "$NAME: granted=true"; then
-  FILE=`find $MODPATH/system -type f -name $APP.apk`
-  ui_print "- Granting all runtime permissions for $PKG..."
-  RES=`pm install -g -i com.android.vending $FILE 2>/dev/null`
-  pm grant $PKG $NAME
-  if ! dumpsys package $PKG | grep -q "$NAME: granted=true"; then
-    ui_print "  ! Failed."
-    if [ "$RES" ]; then
-      ui_print "$RES"
-    fi
-    ui_print "    Just ignore this."
-  fi
-  RES=`pm uninstall -k $PKG 2>/dev/null`
-  ui_print " "
-fi
-}
 
 # ui app
 if [ "$MOD_UI" != true ]\
@@ -421,10 +403,6 @@ if [ "$MOD_UI" != true ]\
   APPS="AudioWizard AudioWizardView"
   ui_print " "
 else
-  APP=AudioWizard
-  PKG=com.asus.maxxaudio
-  NAME=android.permission.READ_CALL_LOG
-  grant_permission
   sed -i 's|#o||g' $MODPATH/.aml.sh
   APPS=DtsUltra
 fi
@@ -437,7 +415,7 @@ hide_app
 APPS="`ls $MODPATH/system/priv-app`
       `ls $MODPATH/system/app`"
 hide_oat
-APPS="$APPS MusicFX DTSXULTRA"
+APPS="$APPS MusicFX DTSXULTRA DtsAudio"
 hide_app
 
 # stream
@@ -644,6 +622,7 @@ fi
 }
 
 # run
+MODSYSTEM=/system
 . $MODPATH/copy.sh
 . $MODPATH/.aml.sh
 
